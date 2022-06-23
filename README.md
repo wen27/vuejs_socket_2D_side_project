@@ -1,2 +1,6 @@
-# vuejs_socket_2D_side_project
-vuejs_socket_2D_side_project
+# canvas real-time drawBoard
+
+# init
+npm init -y
+
+
