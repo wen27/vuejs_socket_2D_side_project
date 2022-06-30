@@ -1,40 +1,44 @@
-const Express = require("express");
-const Http = require("http").Server(Express);
-const Socketio = require("socket.io")(Http);
+import http from "http"
+import fs from "fs"
+import io from "socket.io"
+import url from "url"
+
 let port = 3000;
 
-var position = {
-    x:200,
-    y:200,
-};
-
-Socketio.on("connection",socket =>{
-    socket.emit("position",position);
-    socket.on("move",data=>{
-        switch(data){
-            case "left":
-                position.x -=5;
-                Socketio.emit("position",position);
-                break;
-            case "right":
-                position.x +=5;
-                Socketio.emit("position",position);
-                break;
-            case "up":
-                position.y -=5;
-                Socketio.emit("position",position);
-                break;
-            case "down":
-                position.y +=5;
-                Socketio.emit("position",position);
-                break;
-        }
-    })
-
-
-});
+const server = http.createServer(function(request, response){
+    const path = url.parse(request.url).pathname;
+    switch (path) {
+        case '/':
+            response.writeHead(200, { 'Content-Type': 'text/html' });
+            response.write('I don\'t need to reload~');
+            response.end(); 
+            break;
+        case '/socket.html':
+            fs.readFile(__dirname + path, function(error, data) {
+                if (error) {
+                    response.writeHead(404);
+                    response.write("opps this doesn't exist - 404");
+                } else {
+                    response.writeHead(200, { "Content-Type": "text/html" });
+                    response.write(data, "utf8");
+                }
+                response.end();
+            });
+            break;
+        default:
+            response.writeHead(404);
+            response.write("opps this doesn't exist - 404");
+            response.end();
+            break;
+    }
+})
 
 
-Http.listen(port,()=>{
+server.listen(port,()=>{
     console.log(`Listening at :${port}....`);
 });
+const serv_io = io.listen(server);
+
+export {
+    serv_io
+}
